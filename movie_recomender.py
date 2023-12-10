@@ -4,9 +4,6 @@ import numpy
 # Parameters
 HEAD = 10
 MINIMUN_RATINGS = 100
-U1_ID = 1
-U2_ID = 610
-
 
 # Datasets
 movies_df = pd.read_csv("movies.csv")
@@ -38,7 +35,7 @@ def get_user_ratings(user_id):
 
 def get_users_distance(user_id_1,user_id_2):
     """
-    Returns alistwith the users id and their respective distance
+    Returns a list with the users id and their respective distance based on same movies rated
     """
     user_1 = get_user_ratings(user_id_1)
     user_2 = get_user_ratings(user_id_2)
@@ -53,4 +50,25 @@ def get_users_distance(user_id_1,user_id_2):
     return [user_id_1, user_id_2, distance] 
 
 
-print(get_users_distance(1,3))
+def get_all_distances(user_id):
+    """
+    calculate the relative distance from 'user_id' to all other users in a Dataframe
+    """
+    users = ratings_df["userId"].unique()
+    other_users = users[users != user_id]
+
+    distances = [ get_users_distance(user_id, other_id) for other_id in other_users ]
+
+    return pd.DataFrame(distances, columns=["userId", "otherId", "distance"])
+
+
+def get_top_matches(user_id):
+    """
+    Sorts and returns top matches between similiar users
+    """
+    distance_to_user = get_all_distances(user_id)
+    return  distance_to_user.sort_values("distance").set_index("userId")
+    
+
+
+print(get_top_matches(9))

@@ -67,8 +67,27 @@ def get_top_matches(user_id):
     Sorts and returns top matches between similiar users
     """
     distance_to_user = get_all_distances(user_id)
-    return  distance_to_user.sort_values("distance").set_index("userId")
+    return  distance_to_user.sort_values("distance").set_index("otherId")
     
 
+def recommend_movie(user_id):
+    """
+    makes a movie recomendation based on the top rating of the most similar user
+    """
+    user_ratings = get_user_ratings(user_id)
+    top_match = get_top_matches(user_id).iloc[0]
 
-print(get_top_matches(9))
+    match_ratings = get_user_ratings(top_match.name)
+    unwatched_movies = match_ratings.drop(user_ratings.index, errors="ignore")
+    unwatched_movies = unwatched_movies.sort_values("rating", ascending=False)
+    
+    return unwatched_movies.join(movies_df)
+
+
+# K-Nearest Neighbors (KNN) is a supervised machine learning algorithm
+
+def get_knn(user_id, k=NEIGHBORS):
+    pass
+
+
+print(recommend_movie(9))
